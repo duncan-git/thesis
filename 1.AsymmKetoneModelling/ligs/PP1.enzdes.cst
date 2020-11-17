@@ -1,0 +1,30 @@
+################ CST_1 ( Lys-NH2 to NBR Schiff Base ) ###############
+
+CST::BEGIN
+ TEMPLATE::   ATOM_MAP: 1 atom_name: C13 C12 C11
+ TEMPLATE::   ATOM_MAP: 1 residue3:  PP1
+
+ TEMPLATE::   ATOM_MAP: 2 atom_name: NZ CE CD ,
+ TEMPLATE::   ATOM_MAP: 2 residue3:  LYM
+
+ CONSTRAINT:: distanceAB:      1.3   0.1    80.0    1   0
+ CONSTRAINT::    angle_A:    120.0   5.0    80.0  360   0
+ CONSTRAINT::    angle_B:    120.0   5.0    80.0  360   0
+ CONSTRAINT:: torsion_AB:      0.0  10.0    80.0  180   1
+
+CST::END
+
+################ CST_2 ( Lys-NH2 to NBR Schiff Base ) ###############
+
+CST::BEGIN
+ TEMPLATE::   ATOM_MAP: 1 atom_name: C13 C14 C12
+ TEMPLATE::   ATOM_MAP: 1 residue3:  PP1
+
+ TEMPLATE::   ATOM_MAP: 2 atom_name: NZ CE CD ,
+ TEMPLATE::   ATOM_MAP: 2 residue3:  LYM
+
+ CONSTRAINT::    angle_A:    120.0   5.0    80.0  360   0
+ CONSTRAINT::  torsion_A:    180.0  10.0    80.0  360   0
+ CONSTRAINT:: torsion_AB:    180.0  10.0    80.0  180   1
+
+CST::END

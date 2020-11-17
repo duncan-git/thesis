@@ -1,0 +1,3 @@
+-parser:protocol scripts/Relax_Ligand_new_Fast1.1bb_semi_hbond_HA.xml
+-extra_res_fa /cluster/apps/rosetta/3.11/x86_64/main/database/chemical/residue_type_sets/fa_standard/residue_types/sidechain_conjugation/LYX.params
+-run:preserve_header true

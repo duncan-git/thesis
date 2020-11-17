@@ -1,0 +1,170 @@
+<ROSETTASCRIPTS>
+
+	<SCOREFXNS>
+
+		<ScoreFunction name="REF2015_lowfarep" weights="REF2015">
+			<Reweight scoretype="atom_pair_constraint" weight="1.0" />
+			<Reweight scoretype="angle_constraint" weight="1.0" />
+			<Reweight scoretype="dihedral_constraint" weight="1.0"/>
+			<Reweight scoretype="fa_rep" weight="0.0" />
+		</ScoreFunction>
+
+		<ScoreFunction name="REF2015" weights="REF2015">
+			<Reweight scoretype="atom_pair_constraint" weight="1.0" />
+			<Reweight scoretype="angle_constraint" weight="1.0" />
+			<Reweight scoretype="dihedral_constraint" weight="1.0"/>
+		</ScoreFunction>
+
+		<ScoreFunction name="SC_HB_ONLY" weights="empty" >
+			<Reweight scoretype="atom_pair_constraint" weight="1.0" />
+			<Reweight scoretype="angle_constraint" weight="1.0" />
+			<Reweight scoretype="dihedral_constraint" weight="1.0"/>
+			<Reweight scoretype="hbond_sc" weight="1.0" />
+		</ScoreFunction>
+
+		<ScoreFunction name="SCORING_HNETWORK" weights="REF2015" >
+			<Reweight scoretype="atom_pair_constraint" weight="2.0" />
+			<Reweight scoretype="angle_constraint" weight="2.0" />
+			<Reweight scoretype="dihedral_constraint" weight="2.0"/>
+			<Reweight scoretype="hbond_sc" weight="1.0" />
+		</ScoreFunction>
+
+	</SCOREFXNS>
+
+	<SCORINGGRIDS ligand_chain="X" width="15">
+		<HbdGrid grid_name="HDG" weight="1.0"/>
+		<HbaGrid grid_name="HAG" weight="1.0"/>
+	</SCORINGGRIDS>
+
+	<RESIDUE_SELECTORS>
+		# Select catalytic network and ligand
+		<Index name="asn110" resnums="109"/>
+		<Index name="tyr180" resnums="179"/>
+		<Index name="lys83" resnums="82"/>
+		<Index name="tyr51" resnums="50"/>
+		<ResidueName name="lig" residue_name3="%%ligand%%"/>
+		# Select designable residue
+		<Index name="target" resnums="%%target%%"/>
+		# Select residues to be fixed throughout simulation
+		<ResidueName name="GP" residue_name3="GLY,PRO"/>
+		# Select residues that are not involved in design or catalysis
+		<Or name="GP_and_target" selectors="GP,target"/>
+		<Not name="not_GP_and_target" selector="GP_and_target"/>
+		<Not name="not_GP" selector="GP"/>
+		# Select residies that ARE involved in design or catalysis
+		<Or name="catalysis" selectors="asn110,tyr180,lys83,tyr51,lig"/>
+		<Or name="catalysis_or_design" selectors="catalysis,target"/>
+		<Not name="not_catalysis_or_design" selector="catalysis_or_design"/>
+   	</RESIDUE_SELECTORS>
+
+	<TASKOPERATIONS>
+			# generic TaskOps for full simulation
+			<OperateOnResidueSubset name="fix_GP" selector="GP" >
+				<PreventRepackingRLT/>
+			</OperateOnResidueSubset>
+	  	# TaskOps for initial low_farep_repack
+  		<OperateOnResidueSubset name="repack_tetrad" selector="catalysis">
+				<RestrictToRepackingRLT/>
+  		</OperateOnResidueSubset>
+  		<OperateOnResidueSubset name="fix_scaffold" selector="not_catalysis_or_design">
+				<PreventRepackingRLT/>
+  		</OperateOnResidueSubset>
+  		# TaskOps for mutation to desired residue (FastDesign, phase 1)
+			<OperateOnResidueSubset name="Design" selector="target">
+				<RestrictAbsentCanonicalAASRLT aas="%%aa%%"/>
+  		</OperateOnResidueSubset>
+  		# TaskOps for FastRelax (phase 2)
+			<OperateOnResidueSubset name="Packing" selector="not_GP_and_target">
+				<RestrictToRepackingRLT/>
+  		</OperateOnResidueSubset>
+  		<OperateOnResidueSubset name="Scaffold_Packing" selector="not_GP">
+				<RestrictToRepackingRLT/>
+  		</OperateOnResidueSubset>
+			<RestrictToRepacking name="repackonly"/>
+	</TASKOPERATIONS>
+
+	<MOVERS>
+		<AddOrRemoveMatchCsts name="add_cst"
+				cst_instruction="add_new" keep_covalent="true" /> # Adds Schiff-base constraint
+		<AddOrRemoveMatchCsts name="rm_cst"
+				cst_instruction="remove" keep_covalent="true" /> # Removes Schiff-base constraint
+
+		<AddConstraints name="add_hbond_csts"> # Set of nested constraints to describe hnetwork geometry
+			 <HydrogenBondConstraintGenerator name="hbond_asn_tyr"
+				residue_selector1="asn110"
+				residue_selector2="tyr180"
+				atoms1="ND2"
+				atoms2="OH"
+				atom_pair_func="FLAT_HARMONIC 1.4 0.5 0.4"/>
+			<HydrogenBondConstraintGenerator name="hbond_asn_lys"
+				residue_selector1="asn110"
+				residue_selector2="lys83"
+				atoms1="OD1"
+				atoms2="NZ"
+				atom_pair_func="FLAT_HARMONIC 1.4 0.5 0.4"
+				atom_definitions="LYM,NZ,CE,CD,1.4,109.5"/>
+			<HydrogenBondConstraintGenerator name="hbond_cyc_carbinol_tyr180"
+				residue_selector1="tyr180"
+				residue_selector2="lig"
+				atoms1="OH"
+				atoms2="O2"
+				atom_pair_func="FLAT_HARMONIC 1.4 0.5 0.4"
+				atom_definitions="%%ligand%%,O3,C13,C14,1.4,109.5"/>
+			<HydrogenBondConstraintGenerator name="hbond_cyc_tyr51_hydroxyl"
+				residue_selector1="lig"
+				residue_selector2="tyr51"
+				atoms1="O2"
+				atoms2="OH"
+				atom_pair_func="FLAT_HARMONIC 1.4 0.5 0.4"
+				atom_definitions="%%ligand%%,O2,C11,C12,1.4,109.5"/>
+			<HydrogenBondConstraintGenerator name="hbond_cyc_tyr51_carbinol"
+				residue_selector1="lig"
+				residue_selector2="tyr180"
+				atoms1="O3"
+				atoms2="OH"
+				atom_pair_func="FLAT_HARMONIC 1.4 0.5 0.4"
+				atom_definitions="%%ligand%%,O3,C13,C14,1.4,109.5"/>
+		</AddConstraints>
+
+		<ClearConstraintsMover name="clear_csts"/> # removes ALL constraints
+
+		<ConstraintSetMover name="set_bb_csts" add_constraints="true" cst_file="cstfile.txt"/> # adds SemiFlexBB constraints
+		<ConstraintSetMover name="clear_bb_csts" add_constraints="true" cst_file="none"/> # removes SemiFlexBB constraints
+
+		<FastDesign name="FastDesign" scorefxn="SC_HB_ONLY"
+					clear_designable_residues="false"
+					ramp_down_constraints="false"
+					task_operations="repack_tetrad,fix_scaffold,Design"> # initial optimisation of ligand-network
+					<MoveMap>
+						<Chain number="1" chi="1" bb="1"/>
+						<Jump number="1" setting="1"/>
+					</MoveMap>
+		</FastDesign>
+
+		<FastRelax name="FastRelax" scorefxn="REF2015"
+					ramp_down_constraints="false"
+					task_operations="fix_GP,Scaffold_Packing"> # realistic packing and minimisation
+					<MoveMap>
+						<Chain number="1" chi ="1" bb="1"/>
+						<Jump number="1" setting="1"/>
+					</MoveMap>
+		</FastRelax>
+
+		<Transform 	name="perturb_lig" chain="X" box_size="10.0"
+				move_distance="0.1" angle="1.0" cycles="100"
+				repeats="1" temperature="5" initial_perturb="1.0"
+				initial_angle_perturb="5.0"/>
+</MOVERS>
+<PROTOCOLS>
+		<Add mover="perturb_lig"/>
+		<Add mover="add_cst" />
+		<Add mover="add_hbond_csts"/>
+		<Add mover="FastDesign"/>
+		<Add mover="clear_csts"/>
+		<Add mover="add_cst"/>
+		<Add mover="set_bb_csts"/>
+		<Add mover="FastRelax"/>
+		<Add mover="add_hbond_csts"/>
+</PROTOCOLS>
+<OUTPUT scorefxn="SCORING_HNETWORK"/>
+</ROSETTASCRIPTS>

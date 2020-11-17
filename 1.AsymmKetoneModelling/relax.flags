@@ -1,0 +1,5 @@
+-ex1
+-ex2
+-extra_res_fa ligs/LYM.params
+-parser:protocol script/relax.xml
+-run:preserve_header true

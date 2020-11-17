@@ -1,0 +1,40 @@
+################ CST_1 ( Lys-NH2 to NKR Hemiaminal ) ###############
+
+CST::BEGIN
+ TEMPLATE::   ATOM_MAP: 1 atom_name: CL CL1 CL2
+ TEMPLATE::   ATOM_MAP: 1 residue3:  NKR
+
+ TEMPLATE::   ATOM_MAP: 2 atom_name: NZ CE CD ,
+ TEMPLATE::   ATOM_MAP: 2 residue3:  LYX
+
+ CONSTRAINT:: distanceAB:     1.49  0.05  400.0    1   0
+ CONSTRAINT::    angle_A:    110.5  0.50  200.0  360   0
+ CONSTRAINT::    angle_B:    117.9  0.50  200.0  360   0
+
+CST::END
+
+################ CST_2 ( Lys-NH2 to NKR Hemiaminal ) ###############
+
+CST::BEGIN
+ TEMPLATE::   ATOM_MAP: 1 atom_name: CL OL1 CL1
+ TEMPLATE::   ATOM_MAP: 1 residue3:  NKR
+
+ TEMPLATE::   ATOM_MAP: 2 atom_name: NZ CE CD ,
+ TEMPLATE::   ATOM_MAP: 2 residue3:  LYX
+
+ CONSTRAINT::    angle_A:    106.6  0.50  200.0  360   0
+
+CST::END
+
+################ CST_3 ( Lys-NH2 to NKR Hemiaminal ) ###############
+
+CST::BEGIN
+ TEMPLATE::   ATOM_MAP: 1 atom_name: CL CL2 CL1
+ TEMPLATE::   ATOM_MAP: 1 residue3:  NKR
+
+ TEMPLATE::   ATOM_MAP: 2 atom_name: NZ CE CD ,
+ TEMPLATE::   ATOM_MAP: 2 residue3:  LYX
+
+ CONSTRAINT::    angle_A:    113.4  0.50  200.0  360   0
+
+CST::END
